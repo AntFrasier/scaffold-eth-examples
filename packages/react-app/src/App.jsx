@@ -1,6 +1,6 @@
 import Portis from "@portis/web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Button, Col, Menu, Row } from "antd";
+import { Alert, Button, Col, Menu, Row, Drawer } from "antd";
 import "antd/dist/antd.css";
 import Authereum from "authereum";
 import {
@@ -438,6 +438,27 @@ function App(props) {
     );
   }
 
+//adding slide out debug states 
+ const [debugContractToShow, setDebugContractToShow] = useState('');
+
+ const contractsToShow = Object.keys(readContracts).map ( (_contractName) => {
+   if (!debugContractToShow) setDebugContractToShow(_contractName) //if there as been no click show the last contract that've been deployed
+   return(
+     <Menu.Item key={`${_contractName}`}>
+    <Link  onClick={ () => { setDebugContractToShow(_contractName)}}>{_contractName}</Link>
+    </Menu.Item>
+       );
+     }); 
+   const [visible, setVisible] = useState(false);
+   const showDrawer = () => {
+       setVisible(true);
+     };
+   
+   const onClose = () => {
+       setVisible(false);
+     };
+//end of slide out states
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -452,121 +473,81 @@ function App(props) {
               }}
               to="/"
             >
-              YourContract
+              Home
             </Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
+          <Menu.Item key="/AddRmove">
             <Link
               onClick={() => {
-                setRoute("/hints");
+                setRoute("/AddRmove");
               }}
-              to="/hints"
+              to="/AddRmove"
             >
-              Hints
+              Signers
             </Link>
           </Menu.Item>
-          <Menu.Item key="/exampleui">
+          <Menu.Item key="/Withdraw">
             <Link
               onClick={() => {
-                setRoute("/exampleui");
+                setRoute("/Withdraw");
               }}
-              to="/exampleui"
+              to="/Withdraw"
             >
-              ExampleUI
+              Withdraw
             </Link>
           </Menu.Item>
-          <Menu.Item key="/mainnetdai">
+          <Menu.Item key="/Vote">
             <Link
               onClick={() => {
-                setRoute("/mainnetdai");
+                setRoute("/Vote");
               }}
-              to="/mainnetdai"
+              to="/Vote"
             >
-              Mainnet DAI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link
-              onClick={() => {
-                setRoute("/subgraph");
-              }}
-              to="/subgraph"
-            >
-              Subgraph
+              Vote
             </Link>
           </Menu.Item>
         </Menu>
 
         <Switch>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-            <Contract
-              name="YourContract"
-              price={price}
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
+           Here is were the front part goes
+           {/* adding slide out debug  */}
+            <Button  style={{position : "fixed", right:"26px", top: 130}} type="primary" onClick={showDrawer}>
+                Debug Contracts
+            </Button>
+            <Drawer
+              contentWrapperStyle={{width:"40vw"}}
+              title="Debug"
+              placement="left"
+              closable={true}
+              onClose={onClose}
+              visible={visible}
+              key="right">
+              
+              <Menu selectedKeys={debugContractToShow} mode="horizontal">          
+                {contractsToShow}
+              </Menu>
+              <Contract
+                  name={debugContractToShow}
+                  price={price}
+                  signer={userSigner}
+                  provider={localProvider}
+                  address={address}
+                  blockExplorer={blockExplorer}
+                  contractConfig={contractConfig}
+                /> 
+            </Drawer>
           </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
+          <Route path="/AddRmove">
+            Add or remove a signer
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userSigner={userSigner}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-            />
+          <Route path="/Withdraw">
+            Ask For withdraw
           </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-              contractConfig={contractConfig}
-              chainId={1}
-            />
-            {/*
-            <Contract
-              name="UNI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.UNI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-            */}
+          <Route path="/Vote">
+            Vote for the withdraw proposal
           </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-            />
-          </Route>
+          
         </Switch>
       </BrowserRouter>
 
